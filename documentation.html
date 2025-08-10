@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AegisVCS — Documentation (single file)</title>
+  <meta name="description" content="AegisVCS local documentation (single-file). Contains API reference, examples and full source (main.rs)." />
+
+  <!-- Tailwind (via CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Prism for code highlighting + line numbers -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-rust.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+  <style>
+    :root{ --bg:#000; --panel: rgba(8,10,12,0.62); --muted: rgba(255,255,255,0.06); --accent: #34d399; }
+    html,body{height:100%;}
+    body{background:var(--bg); color:#e6eef8; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;}
+    #bg{position:fixed;inset:0;z-index:-10}
+    aside{min-height:100vh}
+
+    /* panels — translucent so animation shows through */
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015)); border:1px solid rgba(255,255,255,0.03); backdrop-filter: blur(6px);}
+
+    /* headings */
+    h2,h3{color:#e6f6ff}
+    h3 .tag{color:var(--accent); font-weight:700}
+
+    /* callouts */
+    .callout{padding:0.75rem 1rem; border-radius:0.5rem; background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.02)}
+    .callout.note{box-shadow: 0 4px 18px rgba(52,211,153,0.03);}
+    .callout.warn{border-color: rgba(255,120,90,0.12); box-shadow: 0 6px 24px rgba(255,120,90,0.02);}
+
+    /* code blocks: translucent gray bg and readable */
+    pre.code-block{background: rgba(30,30,30,0.6); border-radius:0.5rem; padding:1rem; overflow:auto; border:1px solid rgba(255,255,255,0.03)}
+    pre.code-block code { font-size:0.85rem; }
+
+    /* Prism line numbers tweaks */
+    .line-numbers .line-numbers-rows { opacity: 0.45 }
+
+    /* table style for API params */
+    table.api{width:100%; border-collapse:collapse; margin-top:.5rem}
+    table.api th, table.api td{padding:.5rem .75rem; border-bottom:1px solid rgba(255,255,255,0.03); text-align:left}
+    table.api th{background:rgba(255,255,255,0.01); color:#cfeffd}
+
+    /* responsive */
+    @media (max-width:900px){ aside{display:none} main{padding:1.5rem} }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+
+  <div class="min-h-screen flex">
+    <aside class="w-72 p-6 border-r border-slate-800/40 bg-black/40 backdrop-blur-sm">
+      <a class="flex items-center gap-3 mb-8" href="#">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-700 via-cyan-600 to-emerald-500 flex items-center justify-center shadow-xl">
+          <span class="font-mono text-lg">AV</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold">AegisVCS</h1>
+          <p class="text-xs text-slate-400">Local docs — single file</p>
+        </div>
+      </a>
+
+      <nav class="text-sm space-y-2">
+        <a href="#overview" class="block px-3 py-2 rounded hover:bg-slate-800/20">Overview</a>
+        <a href="#api" class="block px-3 py-2 rounded hover:bg-slate-800/20">API Reference</a>
+        <a href="#examples" class="block px-3 py-2 rounded hover:bg-slate-800/20">Examples</a>
+        <a href="#source" class="block px-3 py-2 rounded hover:bg-slate-800/20">Source (main.rs)</a>
+      </nav>
+
+      <div class="mt-6 text-xs text-slate-500">
+        <p>Generated from <code class="text-[10px]">/mnt/data/main.rs</code></p>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-10 max-w-5xl">
+      <section id="overview" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-2">Overview</h2>
+        <p class="text-slate-300">This single-file documentation contains a detailed API reference for the uploaded <code>main.rs</code>, runnable examples, and the full source code embedded with syntax highlighting. Panels are slightly translucent so the animated background remains visible.</p>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="callout note">
+            <strong class="text-slate-100">Note:</strong>
+            <div class="text-sm text-slate-300">The repo uses a simplified tree model — only file bytes hashed (SHA-256) and no recursive path representation.</div>
+          </div>
+          <div class="callout warn">
+            <strong class="text-slate-100">Warning:</strong>
+            <div class="text-sm text-slate-300">Signing in <code>main()</code> uses ephemeral keys for demo. Do not rely on it for production signing — keys are not persisted.</div>
+          </div>
+          <div class="callout">
+            <strong class="text-slate-100">Tip:</strong>
+            <div class="text-sm text-slate-300">Open this file directly in the browser. No server required. Use the "Source" section to copy/paste the Rust code.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="api" class="mb-6 panel p-6 rounded-lg">
+        <h3 class="text-2xl font-semibold mb-4">API Reference — Detailed</h3>
+
+        <article class="mb-4">
+          <h4 class="text-lg font-medium">Struct: <code>Commit</code></h4>
+          <table class="api"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>id</td><td>String</td><td>Commit identifier, formatted as <code>c-{blake3(tree)}</code>.</td></tr>
+              <tr><td>parent</td><td>Option&lt;String&gt;</td><td>Parent commit id (if any).</td></tr>
+              <tr><td>tree</td><td>String</td><td>SHA-256 hex of concatenated file bytes (simplified tree).</td></tr>
+              <tr><td>author</td><td>String</td><td>Author display name (from <code>whoami</code>).</td></tr>
+              <tr><td>message</td><td>String</td><td>Commit message.</td></tr>
+              <tr><td>timestamp</td><td>DateTime&lt;Utc&gt;</td><td>Commit timestamp.</td></tr>
+              <tr><td>signature</td><td>Option&lt;String&gt;</td><td>Base58-encoded ed25519 signature of the commit message (if signed).</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="mb-4">
+          <h4 class="text-lg font-medium">Struct: <code>Repository</code></h4>
+          <table class="api"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>path</td><td>PathBuf</td><td>Working directory root where <code>.aegis</code> resides.</td></tr>
+              <tr><td>heads</td><td>BTreeMap&lt;String,String&gt;</td><td>Mapping of branch name to commit id loaded from <code>.aegis/branches/</code>.</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="mb-4">
+          <h4 class="text-lg font-medium">Functions / Methods</h4>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::init(path: &Path) - <span class="text-slate-300">Result&lt;Repository&gt;</span></h5>
+            <p class="text-slate-300">Creates <code>.aegis/</code> and subfolders (<code>objects</code>, <code>trees</code>, <code>commits</code>, <code>branches</code>, <code>tags</code>, <code>stashes</code>).</p>
+            <p class="text-slate-300">Errors: if <code>.aegis</code> already exists or if filesystem calls fail.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::open(path: &Path) - <span class="text-slate-300">Result&lt;Repository&gt;</span></h5>
+            <p class="text-slate-300">Opens repository and loads branch heads by reading <code>.aegis/branches/</code>. Fails if repository not present.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::write_commit(&self, commit: &Commit) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
+            <p class="text-slate-300">Serializes commit to pretty JSON and writes to <code>.aegis/commits/&lt;id&gt;</code>.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::read_commit(&self, id: &str) - <span class="text-slate-300">Result&lt;Commit&gt;</span></h5>
+            <p class="text-slate-300">Reads and deserializes commit JSON. Errors on I/O or parse failure.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::commit(&mut self, message: &str, author: &str, signing_key: Option&lt;&SigningKey&gt;) - <span class="text-slate-300">Result&lt;String&gt;</span></h5>
+            <p class="text-slate-300">Creates a new commit for the current working directory snapshot.</p>
+            <table class="api"><thead><tr><th>Step</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Hashes all files (in repo root, excluding <code>.aegis</code>) using SHA-256 to form <code>tree</code>.</td></tr>
+                <tr><td>2</td><td>Computes commit id as <code>c-{blake3(tree)}</code>.</td></tr>
+                <tr><td>3</td><td>Signs commit.message with provided <code>SigningKey</code> (if given) and stores Base58 signature.</td></tr>
+                <tr><td>4</td><td>Writes commit JSON and updates <code>.aegis/branches/main</code>.</td></tr>
+              </tbody>
+            </table>
+            <p class="text-slate-300">Returns the created commit id. Note: tree model is simplistic (non-recursive) and the branch used is always <code>main</code>.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::head(&self) - <span class="text-slate-300">Option&lt;&String&gt;</span></h5>
+            <p class="text-slate-300">Returns the commit id for <code>main</code> branch if present.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::log(&self) - <span class="text-slate-300">Result&lt;Vec&lt;Commit&gt;&gt;</span></h5>
+            <p class="text-slate-300">Traverses parents from HEAD and returns commits as a vector (newest first). Errors if commit files missing.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::verify(&self, id: Option&lt;&str&gt;, verifying_key: Option&lt;&VerifyingKey&gt;) - <span class="text-slate-300">Result&lt;bool&gt;</span></h5>
+            <p class="text-slate-300">Verifies ed25519 signatures on a single commit (if id provided) or on the entire history when id is None. Returns true if verification succeeds. Requires a <code>VerifyingKey</code> to be passed.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::list_branches(&self) - <span class="text-slate-300">Vec&lt;String&gt;</span></h5>
+            <p class="text-slate-300">Returns loaded branch names.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::create_branch(&mut self, name: &str) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
+            <p class="text-slate-300">Creates branch file pointing to current head. No-op if branch exists.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::checkout(&mut self, target: &str) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
+            <p class="text-slate-300">Switches HEAD to a branch or commit id if present. Errors if target not found.</p>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-semibold">Repository::add_ignore(&self, pattern: &str) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
+            <p class="text-slate-300">Appends the pattern to <code>.aegis/ignore</code>, creating it if missing.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="examples" class="mb-6 panel p-6 rounded-lg">
+        <h3 class="text-2xl font-semibold mb-2">Examples</h3>
+        <pre class="code-block"><code class="language-bash"># Initialize repository
+./aegisvcs init
+
+# Make a commit (demo uses ephemeral keypair)
+./aegisvcs commit "My message"
+
+# View log
+./aegisvcs log
+
+# List branches
+./aegisvcs branches
+
+# Open repository and inspect heads
+./aegisvcs open
+</code></pre>
+
+        <div class="mt-4 callout">
+          <strong>Dev tip:</strong> Use the embedded "Source" to copy & paste functions into a Rust project, then run `cargo check` for quick feedback.
+        </div>
+      </section>
+
+      <section id="source" class="mb-6 panel p-6 rounded-lg">
+        <h3 class="text-2xl font-semibold mb-2">Full source: <code>main.rs</code></h3>
+        <p class="text-slate-400 mb-4">(Syntax highlighted, scrollable — line numbers enabled)</p>
+
+        <pre class="line-numbers code-block"><code class="language-rust">use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    fs,
+    io::{self, BufRead, Write},
+    path::{Path, PathBuf},
+    process::Command,
+    str::FromStr,
+};
+
+use anyhow::{anyhow, Context, Result};
+use base58::{FromBase58, ToBase58};
+use blake3;
+use chrono::{DateTime, Utc};
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
+use rand::rngs::OsRng;
+use rand::RngCore;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use thiserror::Error;
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+struct Commit {
+    id: String,
+    parent: Option<String>,
+    tree: String,
+    author: String,
+    message: String,
+    timestamp: DateTime<Utc>,
+    signature: Option<String>,
+}
+
+#[derive(Debug)]
+struct Repository {
+    path: PathBuf,
+    heads: BTreeMap<String, String>,
+}
+
+#[derive(Error, Debug)]
+enum RepoError {
+    #[error("Repository already exists")]
+    Exists,
+    #[error("Repository not found")]
+    NotFound,
+    #[error("Branch not found: {0}")]
+    BranchNotFound(String),
+}
+
+impl Repository {
+    fn init(path: &Path) -> Result<Self> {
+        let aegis_dir = path.join(".aegis");
+        if aegis_dir.exists() {
+            anyhow::bail!("Repository already exists");
+        }
+
+        fs::create_dir_all(aegis_dir.join("objects"))?;
+        fs::create_dir_all(aegis_dir.join("trees"))?;
+        fs::create_dir_all(aegis_dir.join("commits"))?;
+        fs::create_dir_all(aegis_dir.join("branches"))?;
+        fs::create_dir_all(aegis_dir.join("tags"))?;
+        fs::create_dir_all(aegis_dir.join("stashes"))?;
+
+        Ok(Repository { path: path.to_path_buf(), heads: BTreeMap::new() })
+    }
+
+    fn open(path: &Path) -> Result<Self> {
+        let aegis_dir = path.join(".aegis");
+        if !aegis_dir.exists() {
+            anyhow::bail!("Repository not found");
+        }
+        // load heads
+        let mut heads = BTreeMap::new();
+        let branches_dir = aegis_dir.join("branches");
+        if branches_dir.exists() {
+            for entry in fs::read_dir(branches_dir)? {
+                let e = entry?;
+                if let Ok(name) = e.file_name().into_string() {
+                    let val = fs::read_to_string(e.path())?;
+                    heads.insert(name, val.trim().to_string());
+                }
+            }
+        }
+        Ok(Repository { path: path.to_path_buf(), heads })
+    }
+
+    fn write_commit(&self, commit: &Commit) -> Result<()> {
+        let cid = commit.id.clone();
+        let out = serde_json::to_string_pretty(commit)?;
+        fs::write(self.path.join(".aegis").join("commits").join(&cid), out)?;
+        Ok(())
+    }
+
+    fn read_commit(&self, id: &str) -> Result<Commit> {
+        let raw = fs::read_to_string(self.path.join(".aegis").join("commits").join(id))?;
+        let c: Commit = serde_json::from_str(&raw)?;
+        Ok(c)
+    }
+
+    fn commit(&mut self, message: &str, author: &str, signing_key: Option<&SigningKey>) -> Result<String> {
+        // simplistic: tree is hash of current files in working dir
+        let mut hasher = Sha256::new();
+        for entry in fs::read_dir(&self.path)? {
+            let e = entry?;
+            if e.file_name() == ".aegis" { continue; }
+            if e.path().is_file() {
+                let data = fs::read(e.path())?;
+                hasher.update(data);
+            }
+        }
+        let tree = hex::encode(hasher.finalize());
+        let parent = self.head().cloned();
+        let id = format!("c-{}", blake3::hash(tree.as_bytes()).to_hex());
+        let mut commit = Commit { id: id.clone(), parent, tree, author: author.to_string(), message: message.to_string(), timestamp: Utc::now(), signature: None };
+        if let Some(sk) = signing_key {
+            let sig = sk.sign(commit.message.as_bytes());
+            commit.signature = Some(sig.to_bytes().to_base58());
+        }
+        self.write_commit(&commit)?;
+        // update HEAD (default branch: main)
+        fs::write(self.path.join(".aegis").join("branches").join("main"), id.as_bytes())?;
+        self.heads.insert("main".to_string(), id.clone());
+        Ok(id)
+    }
+
+    fn head(&self) -> Option<&String> { self.heads.get("main") }
+
+    fn log(&self) -> Result<Vec<Commit>> {
+        let mut res = Vec::new();
+        let mut cur = self.head().cloned();
+        while let Some(cid) = cur {
+            let c = self.read_commit(&cid)?;
+            res.push(c.clone());
+            cur = c.parent;
+        }
+        Ok(res)
+    }
+
+    fn verify(&self, id: Option<&str>, verifying_key: Option<&VerifyingKey>) -> Result<bool> {
+        if let Some(cid) = id {
+            let c = self.read_commit(cid)?;
+            if let (Some(sig_b58), Some(vk)) = (c.signature, verifying_key) {
+                let sig = sig_b58.from_base58()?;
+                let signature = Signature::from_bytes(&sig)?;
+                vk.verify(c.message.as_bytes(), &signature)?;
+                return Ok(true);
+            }
+            return Ok(false);
+        }
+        // verify entire history if id None
+        let commits = self.log()?;
+        for c in commits {
+            if let (Some(sig_b58), Some(vk)) = (c.signature, verifying_key) {
+                let sig = sig_b58.from_base58()?;
+                let signature = Signature::from_bytes(&sig)?;
+                vk.verify(c.message.as_bytes(), &signature)?;
+            }
+        }
+        Ok(true)
+    }
+
+    fn list_branches(&self) -> Vec<String> { self.heads.keys().cloned().collect() }
+
+    fn create_branch(&mut self, name: &str) -> Result<()> {
+        if self.heads.contains_key(name) { return Ok(()); }
+        let cur = self.head().cloned().unwrap_or_default();
+        fs::write(self.path.join(".aegis").join("branches").join(name), cur.as_bytes())?;
+        self.heads.insert(name.to_string(), cur);
+        Ok(())
+    }
+
+    fn checkout(&mut self, target: &str) -> Result<()> {
+        if let Some(val) = self.heads.get(target) {
+            // switch head
+            self.heads.insert("main".to_string(), val.clone());
+            fs::write(self.path.join(".aegis").join("branches").join("main"), val.as_bytes())?;
+            return Ok(());
+        }
+        // target might be commit id
+        // if commit exists, set HEAD to it
+        if self.path.join(".aegis").join("commits").join(target).exists() {
+            fs::write(self.path.join(".aegis").join("branches").join("main"), target.as_bytes())?;
+            self.heads.insert("main".to_string(), target.to_string());
+            return Ok(());
+        }
+        anyhow::bail!("Target not found")
+    }
+
+    fn add_ignore(&self, pattern: &str) -> Result<()> {
+        let p = self.path.join(".aegis").join("ignore");
+        let mut f = fs::OpenOptions::new().create(true).append(true).open(p)?;
+        writeln!(f, "{}", pattern)?;
+        Ok(())
+    }
+}
+
+fn main() -> Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+    let cwd = std::env::current_dir()?;
+    if args.len() < 2 {
+        println!("Usage: aegisvcs <command> [...]");
+        return Ok(());
+    }
+    let cmd = &args[1];
+    match cmd.as_str() {
+        "init" => {
+            Repository::init(&cwd)?;
+            println!("Initialized repository at {}", cwd.display());
+        }
+        "open" => {
+            let r = Repository::open(&cwd)?;
+            println!("Opened repo with branches: {:?}", r.list_branches());
+        }
+        "commit" => {
+            let author = whoami::realname();
+            let message = args.get(2).map(|s| s.as_str()).unwrap_or("no message");
+            // generate a keypair for demo (not persistent)
+            let mut csprng = OsRng{};
+            let sk = SigningKey::generate(&mut csprng);
+            let mut repo = Repository::open(&cwd)?;
+            let id = repo.commit(message, &author, Some(&sk))?;
+            println!("Committed {}", id);
+        }
+        "log" => {
+            let repo = Repository::open(&cwd)?;
+            for c in repo.log()? {
+                println!("{} - {} - {}", c.id, c.author, c.message);
+            }
+        }
+        "branches" => {
+            let repo = Repository::open(&cwd)?;
+            println!("Branches: {:?}", repo.list_branches());
+        }
+        other => {
+            println!("Unknown command: {}", other);
+        }
+    }
+
+    Ok(())
+}
+</code></pre>
+      </section>
+
+      <footer class="mt-8 text-sm text-slate-400">© <span id="year"></span> AegisVCS — Local Documentation</footer>
+    </main>
+  </div>
+
+  <script>
+    // set footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Background canvas (space-time curvature + ripples + matrix)
+    (function(){
+      const canvas = document.getElementById('bg');
+      const ctx = canvas.getContext('2d');
+      let W=0,H=0,cx=0,cy=0;
+
+      function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; cx=W/2; cy=H/2; createStars(); createDrops(); }
+      addEventListener('resize', resize);
+
+      function rand(a,b){return Math.random()*(b-a)+a}
+
+      let stars=[];
+      function createStars(){ stars=[]; const STAR_COUNT = Math.floor((W*H)/12000)+60; for(let i=0;i<STAR_COUNT;i++){ stars.push({x:Math.random()*W,y:Math.random()*H,z:rand(0.2,1),size:rand(0.3,1.4)}); } }
+
+      let cols=10, drops=[];
+      const chars = 'ア カ サ タ ナ ハ マ ヤ ラ ワ 0 1 2 3 4 5 6 7 8 9'.split(' ');
+      function createDrops(){ cols = Math.max(10, Math.floor(W/16)); drops = new Array(cols).fill(0).map(()=>Math.floor(Math.random()*H)); }
+
+      const ripples = [];
+      function pushRipple(x,y){ ripples.push({x,y,t:0,dur:120}); }
+      addEventListener('mousemove', (e)=>{ if(Math.random()>0.98) pushRipple(e.clientX,e.clientY); });
+      addEventListener('click', (e)=> pushRipple(e.clientX,e.clientY));
+
+      resize();
+      let frame=0;
+      function loop(){
+        frame++; ctx.clearRect(0,0,W,H);
+        const grad = ctx.createRadialGradient(cx,cy,10,cx,cy,Math.max(W,H));
+        grad.addColorStop(0,'rgba(10,14,30,0.6)'); grad.addColorStop(0.35,'rgba(6,8,16,0.6)'); grad.addColorStop(1,'rgba(0,0,0,0.95)');
+        ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+        // stars warped
+        for(const s of stars){ s.y += 0.25 + s.z*0.8; if(s.y>H+20){ s.y=-10; s.x=Math.random()*W; } const dy=(s.y-cy)/H; const warp=1+(dy*dy)*2.2; const wx=(s.x-cx)*warp+cx; const alpha=0.6*s.z; ctx.fillStyle=`rgba(180,220,255,${alpha})`; ctx.fillRect(wx,s.y,s.size*1.2,s.size*1.2); }
+
+        // streaks
+        for(let i=0;i<6;i++){ ctx.beginPath(); ctx.lineWidth=0.6+i*0.1; ctx.strokeStyle=`rgba(80,140,255,${0.02+i*0.01})`; const offset=(frame*0.35+i*60)%(W*2)-W; ctx.moveTo(offset,0); ctx.quadraticCurveTo(cx, cy+(i-3)*30, offset+W*0.4, H); ctx.stroke(); }
+
+        // ripples
+        for(let i=ripples.length-1;i>=0;i--){ const r=ripples[i]; r.t++; const p=r.t/r.dur; if(p>1){ ripples.splice(i,1); continue;} const radius=p*Math.max(W,H)*0.1; const alpha=(1-p)*0.6; ctx.beginPath(); ctx.strokeStyle=`rgba(120,180,255,${alpha})`; ctx.lineWidth=1.2+p*3; ctx.arc(r.x,r.y,radius,0,Math.PI*2); ctx.stroke(); for(let k=1;k<3;k++){ const rr=radius*(0.35+k*0.25); ctx.beginPath(); ctx.strokeStyle=`rgba(120,180,255,${alpha*0.12*k})`; ctx.lineWidth=0.6; ctx.arc(r.x,r.y,rr,0,Math.PI*2); ctx.stroke(); } }
+
+        // matrix
+        ctx.font='14px monospace'; ctx.globalCompositeOperation='lighter'; for(let c=0;c<cols;c++){ const x=c*16; const drop=drops[c]; const ch=chars[(Math.floor(frame/2)+c)%chars.length]; ctx.fillStyle='rgba(60,255,140,0.06)'; ctx.fillText(ch,x,drop); drops[c]= drop>H+Math.random()*100?0:drop+14+Math.random()*8; } ctx.globalCompositeOperation='source-over';
+
+        // center lens
+        const r2=Math.max(W,H)*0.02; const g2=ctx.createRadialGradient(cx,cy,1,cx,cy,r2); g2.addColorStop(0,'rgba(120,170,255,0.12)'); g2.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(cx,cy,r2,0,Math.PI*2); ctx.fill();
+
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
