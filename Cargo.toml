@@ -1,0 +1,22 @@
+[package]
+name = "aeg"
+version = "0.0.3"
+edition = "2021"
+
+[dependencies]
+diffy = "0.3.0"
+glob-match = "0.1.0"
+anyhow = "1.0"
+base58 = "0.2.0"
+blake3 = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+ed25519-dalek = { version = "2.0.0", features = ["serde", "rand_core"] }
+rand = "0.8.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+walkdir = "2.3"
+whoami = "1.4"
+thiserror = "1.0"
+[[bin]]
+name = "aegis"
+path = "src/main.rs"
