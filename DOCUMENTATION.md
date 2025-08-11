@@ -19,7 +19,7 @@ It aims to:
 
 ## Architectural Diagram
 
-![Aegis Architecture](aegis_architecture.svg)
+![Aegis Architecture](architecture.svg)
 
 The architecture consists of:
 1. **User/CLI**: Interface for user commands
