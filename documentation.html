@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AegisVCS — Documentation</title>
-  <meta name="description" content="AegisVCS local documentation (single-file). Contains API reference, examples and full source (main.rs)." />
+  <title>AegisVCS<sub>local</sub> — Documentation</title>
+  <meta name="description" content="A cryptographically secure repository & signed-commit system written in Rust" />
 
   <!-- Tailwind (via CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,7 @@
     .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015)); border:1px solid rgba(255,255,255,0.03); backdrop-filter: blur(6px);}
 
     /* headings */
-    h2,h3{color:#e6f6ff}
+    h1,h2,h3{color:#e6f6ff}
     h3 .tag{color:var(--accent); font-weight:700}
 
     /* callouts */
@@ -61,417 +61,453 @@
           <span class="font-mono text-lg">AV</span>
         </div>
         <div>
-          <h1 class="text-xl font-semibold">AegisVCS</h1>
-          <p class="text-xs text-slate-400">docs/p>
+          <h1 class="text-xl font-semibold">AegisVCS<sub>local</sub></h1>
+          <p class="text-xs text-slate-400">Secure Version Control</p>
         </div>
       </a>
 
       <nav class="text-sm space-y-2">
         <a href="#overview" class="block px-3 py-2 rounded hover:bg-slate-800/20">Overview</a>
-        <a href="#api" class="block px-3 py-2 rounded hover:bg-slate-800/20">API Reference</a>
+        <a href="#architecture" class="block px-3 py-2 rounded hover:bg-slate-800/20">Architecture</a>
+        <a href="#design" class="block px-3 py-2 rounded hover:bg-slate-800/20">Design</a>
+        <a href="#dependencies" class="block px-3 py-2 rounded hover:bg-slate-800/20">Dependencies</a>
+        <a href="#structures" class="block px-3 py-2 rounded hover:bg-slate-800/20">Data Structures</a>
+        <a href="#layout" class="block px-3 py-2 rounded hover:bg-slate-800/20">On-Disk Layout</a>
+        <a href="#commands" class="block px-3 py-2 rounded hover:bg-slate-800/20">Commands</a>
+        <a href="#security" class="block px-3 py-2 rounded hover:bg-slate-800/20">Security</a>
         <a href="#examples" class="block px-3 py-2 rounded hover:bg-slate-800/20">Examples</a>
-        <a href="#source" class="block px-3 py-2 rounded hover:bg-slate-800/20">Source</a>
       </nav>
 
       <div class="mt-6 text-xs text-slate-500">
-        <p>Generated from <code class="text-[10px]">application/src/main.src</code></p>
+        <p>Cryptographically secure VCS</p>
       </div>
     </aside>
 
     <main class="flex-1 p-10 max-w-5xl">
       <section id="overview" class="mb-6 panel p-6 rounded-lg">
-        <h2 class="text-3xl font-bold mb-2">Overview</h2>
-        <p class="text-slate-300">This documentation contains a detailed API reference for the uploaded <code>main.rs</code>, runnable examples, and the full source code embedded with syntax highlighting. Panels are slightly translucent so the animated background remains visible.</p>
+        <h1 class="text-4xl font-bold mb-4">AegisVCS<sub>local</sub></h1>
+        <p class="text-xl text-slate-300 mb-6">A cryptographically secure repository & signed-commit system written in Rust.</p>
+        
+        <div class="callout note">
+          <strong class="text-slate-100">Core Features:</strong>
+          <ul class="mt-2 text-slate-300 space-y-1">
+            <li>• Ed25519 signed commits</li>
+            <li>• Blake3 content hashing</li>
+            <li>• Branching and merging</li>
+            <li>• Full history verification</li>
+            <li>• Lightweight storage</li>
+          </ul>
+        </div>
+      </section>
 
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div class="callout note">
-            <strong class="text-slate-100">Note:</strong>
-            <div class="text-sm text-slate-300">The repo uses a simplified tree model — only file bytes hashed (SHA-256) and no recursive path representation.</div>
-          </div>
-          <div class="callout warn">
-            <strong class="text-slate-100">Warning:</strong>
-            <div class="text-sm text-slate-300">Signing in <code>main()</code> uses ephemeral keys for demo. Do not rely on it for production signing — keys are not persisted.</div>
+      <section id="architecture" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-4">Architectural Diagram</h2>
+        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50 mb-4">
+          <img src="architecture.svg" alt="Aegis Architecture Diagram" class="mx-auto max-w-full" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="callout">
+            <h4 class="font-semibold text-emerald-400 mb-2">Components</h4>
+            <ol class="list-decimal list-inside space-y-1 text-sm">
+              <li><strong>User/CLI</strong>: Interface for user commands</li>
+              <li><strong>Repo Manager</strong>: Core functionality handling operations</li>
+              <li><strong>Index & Storage</strong>: Manages staged changes and object storage</li>
+              <li><strong>Commit Creation</strong>: Creates cryptographically signed commits</li>
+              <li><strong>Verification Path</strong>: Validates signatures and content integrity</li>
+            </ol>
           </div>
           <div class="callout">
-            <strong class="text-slate-100">Tip:</strong>
-            <div class="text-sm text-slate-300">Open this file directly in the browser. No server required. Use the "Source" section to copy/paste the Rust code.</div>
+            <h4 class="font-semibold text-cyan-400 mb-2">Workflow</h4>
+            <ol class="list-decimal list-inside space-y-1 text-sm">
+              <li>Commands enter through CLI</li>
+              <li>Repo Manager coordinates operations</li>
+              <li>Objects stored in content-addressable storage</li>
+              <li>Commits are signed before storage</li>
+              <li>All objects can be verified later</li>
+            </ol>
           </div>
         </div>
       </section>
 
-      <section id="api" class="mb-6 panel p-6 rounded-lg">
-        <h3 class="text-2xl font-semibold mb-4">API Reference — Detailed</h3>
+      <section id="design" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-4">High-Level Design</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-emerald-400">Commit Lifecycle</h3>
+            <ol class="list-decimal list-inside space-y-2">
+              <li><strong>Scan</strong> working directory to create content index (file paths → file hashes)</li>
+              <li><strong>Create Commit Object</strong>: Contains metadata, snapshot hash, and parent(s)</li>
+              <li><strong>Sign</strong>: Ed25519 signature over serialized commit data</li>
+              <li><strong>Store</strong>: Commits and blobs to disk</li>
+              <li><strong>Reference</strong>: Commits by base58-encoded IDs</li>
+              <li><strong>Verify</strong>: Re-hash content and verify signature against stored public key</li>
+            </ol>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-cyan-400">Security Model</h3>
+            <ul class="space-y-2">
+              <li class="flex items-start">
+                <span class="inline-block bg-emerald-900/50 text-emerald-400 rounded-full p-1 mr-2">✓</span>
+                <span>All commits cryptographically signed by default</span>
+              </li>
+              <li class="flex items-start">
+                <span class="inline-block bg-emerald-900/50 text-emerald-400 rounded-full p-1 mr-2">✓</span>
+                <span>Keypair generated during <code>aegis init</code></span>
+              </li>
+              <li class="flex items-start">
+                <span class="inline-block bg-emerald-900/50 text-emerald-400 rounded-full p-1 mr-2">✓</span>
+                <span>Automatic signature verification during <code>aegis verify</code></span>
+              </li>
+              <li class="flex items-start">
+                <span class="inline-block bg-emerald-900/50 text-emerald-400 rounded-full p-1 mr-2">✓</span>
+                <span>UID derived from public key to prevent impersonation</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
-        <article class="mb-4">
-          <h4 class="text-lg font-medium">Struct: <code>Commit</code></h4>
-          <table class="api"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <section id="dependencies" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-4">Dependencies</h2>
+        <div class="overflow-x-auto">
+          <table class="api w-full">
+            <thead>
+              <tr>
+                <th>Crate</th>
+                <th>Purpose</th>
+                <th>Key Features</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>id</td><td>String</td><td>Commit identifier, formatted as <code>c-{blake3(tree)}</code>.</td></tr>
-              <tr><td>parent</td><td>Option&lt;String&gt;</td><td>Parent commit id (if any).</td></tr>
-              <tr><td>tree</td><td>String</td><td>SHA-256 hex of concatenated file bytes (simplified tree).</td></tr>
-              <tr><td>author</td><td>String</td><td>Author display name (from <code>whoami</code>).</td></tr>
-              <tr><td>message</td><td>String</td><td>Commit message.</td></tr>
-              <tr><td>timestamp</td><td>DateTime&lt;Utc&gt;</td><td>Commit timestamp.</td></tr>
-              <tr><td>signature</td><td>Option&lt;String&gt;</td><td>Base58-encoded ed25519 signature of the commit message (if signed).</td></tr>
+              <tr>
+                <td><code>anyhow</code></td>
+                <td>Error handling</td>
+                <td>Ergonomic error contexts</td>
+              </tr>
+              <tr>
+                <td><code>base58</code></td>
+                <td>Encoding</td>
+                <td>Human-friendly IDs</td>
+              </tr>
+              <tr>
+                <td><code>blake3</code></td>
+                <td>Hashing</td>
+                <td>Fast cryptographic hashing</td>
+              </tr>
+              <tr>
+                <td><code>chrono</code></td>
+                <td>Timestamps</td>
+                <td>Commit timing</td>
+              </tr>
+              <tr>
+                <td><code>ed25519_dalek</code></td>
+                <td>Crypto</td>
+                <td>Keypair generation/signing</td>
+              </tr>
+              <tr>
+                <td><code>rand</code></td>
+                <td>Randomness</td>
+                <td>Key generation</td>
+              </tr>
+              <tr>
+                <td><code>serde</code></td>
+                <td>Serialization</td>
+                <td>Data persistence</td>
+              </tr>
+              <tr>
+                <td><code>walkdir</code></td>
+                <td>Filesystem</td>
+                <td>Recursive traversal</td>
+              </tr>
+              <tr>
+                <td><code>whoami</code></td>
+                <td>System</td>
+                <td>User identification</td>
+              </tr>
+              <tr>
+                <td><code>thiserror</code></td>
+                <td>Errors</td>
+                <td>Custom error derivation</td>
+              </tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section id="structures" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-4">Data Structures</h2>
+        
+        <article class="mb-8">
+          <h3 class="text-2xl font-semibold mb-3 text-emerald-400">Commit</h3>
+          <pre class="code-block"><code class="language-rust">#[derive(Serialize, Deserialize, Debug, Clone)]
+struct Commit {
+    id: String,                 // Commit ID (blake3 hash)
+    parents: Vec&lt;String&gt;,        // Parent commit IDs
+    timestamp: DateTime&lt;Utc&gt;,    // Creation time
+    author: Author,              // Committer identity
+    tree_hash: String,           // Snapshot of all files
+    changes: Changes,            // Added/modified/deleted files
+    message: String,             // Commit message
+    signature: String,           // Ed25519 signature (base58)
+    public_key: String,          // Public key (base58)
+}</code></pre>
+          <div class="callout mt-3">
+            <strong>Key Fields:</strong>
+            <ul class="mt-1 space-y-1">
+              <li><code>id</code>: Content-derived identifier</li>
+              <li><code>signature</code>: Ed25519 signature of commit data</li>
+              <li><code>tree_hash</code>: Root hash of repository state</li>
+            </ul>
+          </div>
         </article>
 
-        <article class="mb-4">
-          <h4 class="text-lg font-medium">Struct: <code>Repository</code></h4>
-          <table class="api"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <article class="mb-8">
+          <h3 class="text-2xl font-semibold mb-3 text-cyan-400">Repository</h3>
+          <pre class="code-block"><code class="language-rust">struct Repository {
+    path: PathBuf,              // Root directory
+    aegis_dir: PathBuf,         // .aegis directory
+    signing_key: SigningKey,    // Ed25519 signing key
+    current_branch: String,     // Active branch
+    config: Config,             // Repository configuration
+}</code></pre>
+        </article>
+
+        <article>
+          <h3 class="text-2xl font-semibold mb-3 text-purple-400">Config</h3>
+          <pre class="code-block"><code class="language-rust">struct Config {
+    hash_algorithm: String,     // "blake3"
+    signature_algorithm: String,// "ed25519"
+    uid_length: usize,          // 12
+    ignore_patterns: Vec&lt;String&gt;, // [".aegis", "target", ...]
+}</code></pre>
+        </article>
+      </section>
+
+      <section id="layout" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-4">On-Disk Layout</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <pre class="code-block"><code class="language-plaintext">.aegis/
+├── branches/       # Branch references
+├── commits/        # Commit objects
+├── config.yaml     # Repository config
+├── current_branch  # Active branch name
+├── hooks/          # Client-side hooks
+├── index           # Staging area
+├── keypair.bin     # Ed25519 keypair
+├── objects/        # File blobs
+├── reflog/         # Reference logs
+├── stashes/        # Stashed changes
+└── trees/          # Directory structures</code></pre>
+          </div>
+          <div>
+            <div class="callout">
+              <h4 class="font-semibold mb-2">Storage Notes</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• All objects stored by content hash</li>
+                <li>• Commits stored as signed YAML</li>
+                <li>• Keys protected by filesystem permissions</li>
+                <li>• Index tracks working directory state</li>
+                <li>• Reflog preserves reference history</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="commands" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-4">Command-Line Usage</h2>
+        
+        <h3 class="text-2xl font-semibold mb-3 text-emerald-400">Core Commands</h3>
+        <div class="overflow-x-auto">
+          <table class="api">
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Description</th>
+                <th>Internal Workflow</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>path</td><td>PathBuf</td><td>Working directory root where <code>.aegis</code> resides.</td></tr>
-              <tr><td>heads</td><td>BTreeMap&lt;String,String&gt;</td><td>Mapping of branch name to commit id loaded from <code>.aegis/branches/</code>.</td></tr>
+              <tr>
+                <td><code>init</code></td>
+                <td>Initialize repository</td>
+                <td>1. Create <code>.aegis</code> structure<br>2. Generate Ed25519 keypair<br>3. Create initial <code>main</code> branch<br>4. Set up default ignore patterns</td>
+              </tr>
+              <tr>
+                <td><code>add &lt;path&gt;</code></td>
+                <td>Stage files</td>
+                <td>1. Check pre-add hook<br>2. Hash file contents with blake3<br>3. Update index with file hashes<br>4. Run post-add hook</td>
+              </tr>
+              <tr>
+                <td><code>commit &lt;message&gt;</code></td>
+                <td>Create commit</td>
+                <td>1. Run pre-commit hook<br>2. Compute changes from previous commit<br>3. Create signed commit object<br>4. Store commit and update HEAD<br>5. Print commit summary<br>6. Run post-commit hook</td>
+              </tr>
+              <tr>
+                <td><code>status</code></td>
+                <td>Show changes</td>
+                <td>1. Compare working tree to index<br>2. Compare index to HEAD commit<br>3. Display changes in three categories</td>
+              </tr>
+              <tr>
+                <td><code>log</code></td>
+                <td>Show history</td>
+                <td>1. Start from HEAD commit<br>2. Traverse parent commits<br>3. Display commit metadata<br>4. Limit to last 50 commits</td>
+              </tr>
+              <tr>
+                <td><code>verify [commit]</code></td>
+                <td>Verify signatures</td>
+                <td>1. Load commit object<br>2. Decode base58 public key<br>3. Verify Ed25519 signature<br>4. Validate content hash</td>
+              </tr>
             </tbody>
           </table>
-        </article>
+        </div>
 
-        <article class="mb-4">
-          <h4 class="text-lg font-medium">Functions / Methods</h4>
+        <h3 class="text-2xl font-semibold mt-8 mb-3 text-cyan-400">Branching & Merging</h3>
+        <div class="overflow-x-auto">
+          <table class="api">
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Description</th>
+                <th>Internal Workflow</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>branch [name]</code></td>
+                <td>List/create branch</td>
+                <td>1. List existing branches<br>2. Create new branch at current commit<br>3. Sign branch reference</td>
+              </tr>
+              <tr>
+                <td><code>checkout &lt;target&gt;</code></td>
+                <td>Switch context</td>
+                <td>1. Run pre-checkout hook<br>2. Update HEAD reference<br>3. Reset working tree<br>4. Add reflog entry<br>5. Run post-checkout hook</td>
+              </tr>
+              <tr>
+                <td><code>merge &lt;branch&gt;</code></td>
+                <td>Merge branches</td>
+                <td>1. Find common ancestor<br>2. Detect file conflicts<br>3. Create merge commit with two parents<br>4. Update current branch reference</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::init(path: &Path) - <span class="text-slate-300">Result&lt;Repository&gt;</span></h5>
-            <p class="text-slate-300">Creates <code>.aegis/</code> and subfolders (<code>objects</code>, <code>trees</code>, <code>commits</code>, <code>branches</code>, <code>tags</code>, <code>stashes</code>).</p>
-            <p class="text-slate-300">Errors: if <code>.aegis</code> already exists or if filesystem calls fail.</p>
-          </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::open(path: &Path) - <span class="text-slate-300">Result&lt;Repository&gt;</span></h5>
-            <p class="text-slate-300">Opens repository and loads branch heads by reading <code>.aegis/branches/</code>. Fails if repository not present.</p>
-          </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::write_commit(&self, commit: &Commit) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
-            <p class="text-slate-300">Serializes commit to pretty JSON and writes to <code>.aegis/commits/&lt;id&gt;</code>.</p>
-          </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::read_commit(&self, id: &str) - <span class="text-slate-300">Result&lt;Commit&gt;</span></h5>
-            <p class="text-slate-300">Reads and deserializes commit JSON. Errors on I/O or parse failure.</p>
-          </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::commit(&mut self, message: &str, author: &str, signing_key: Option&lt;&SigningKey&gt;) - <span class="text-slate-300">Result&lt;String&gt;</span></h5>
-            <p class="text-slate-300">Creates a new commit for the current working directory snapshot.</p>
-            <table class="api"><thead><tr><th>Step</th><th>Description</th></tr></thead>
-              <tbody>
-                <tr><td>1</td><td>Hashes all files (in repo root, excluding <code>.aegis</code>) using SHA-256 to form <code>tree</code>.</td></tr>
-                <tr><td>2</td><td>Computes commit id as <code>c-{blake3(tree)}</code>.</td></tr>
-                <tr><td>3</td><td>Signs commit.message with provided <code>SigningKey</code> (if given) and stores Base58 signature.</td></tr>
-                <tr><td>4</td><td>Writes commit JSON and updates <code>.aegis/branches/main</code>.</td></tr>
-              </tbody>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-purple-400">Tagging</h3>
+            <table class="api">
+              <tr>
+                <td><code>tag &lt;name&gt; [msg]</code></td>
+                <td>Create signed tag at current commit</td>
+              </tr>
+              <tr>
+                <td><code>tag -l</code></td>
+                <td>List all tags</td>
+              </tr>
             </table>
-            <p class="text-slate-300">Returns the created commit id. Note: tree model is simplistic (non-recursive) and the branch used is always <code>main</code>.</p>
           </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::head(&self) - <span class="text-slate-300">Option&lt;&String&gt;</span></h5>
-            <p class="text-slate-300">Returns the commit id for <code>main</code> branch if present.</p>
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-amber-400">Stashing</h3>
+            <table class="api">
+              <tr>
+                <td><code>stash [msg]</code></td>
+                <td>Save current changes to stash</td>
+              </tr>
+              <tr>
+                <td><code>stash apply</code></td>
+                <td>Apply latest stash</td>
+              </tr>
+            </table>
           </div>
+        </div>
+      </section>
 
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::log(&self) - <span class="text-slate-300">Result&lt;Vec&lt;Commit&gt;&gt;</span></h5>
-            <p class="text-slate-300">Traverses parents from HEAD and returns commits as a vector (newest first). Errors if commit files missing.</p>
+      <section id="security" class="mb-6 panel p-6 rounded-lg">
+        <h2 class="text-3xl font-bold mb-4">Security Considerations</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-emerald-400">Protections</h3>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <span class="inline-block bg-emerald-900/50 text-emerald-400 rounded-full p-1 mr-2">✓</span>
+                <div>
+                  <strong>Key Protection</strong>
+                  <p class="text-sm text-slate-300">Private keys stored in <code>keypair.bin</code> with strict file permissions</p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="inline-block bg-emerald-900/50 text-emerald-400 rounded-full p-1 mr-2">✓</span>
+                <div>
+                  <strong>Signature Verification</strong>
+                  <p class="text-sm text-slate-300">All operations verify signatures before trusting objects</p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="inline-block bg-emerald-900/50 text-emerald-400 rounded-full p-1 mr-2">✓</span>
+                <div>
+                  <strong>Immutable History</strong>
+                  <p class="text-sm text-slate-300">Signed commits prevent history tampering</p>
+                </div>
+              </li>
+            </ul>
           </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::verify(&self, id: Option&lt;&str&gt;, verifying_key: Option&lt;&VerifyingKey&gt;) - <span class="text-slate-300">Result&lt;bool&gt;</span></h5>
-            <p class="text-slate-300">Verifies ed25519 signatures on a single commit (if id provided) or on the entire history when id is None. Returns true if verification succeeds. Requires a <code>VerifyingKey</code> to be passed.</p>
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-cyan-400">Implementation</h3>
+            <div class="callout">
+              <h4 class="font-semibold">UID Generation</h4>
+              <p class="text-sm mt-1">User IDs derived from public keys prevent impersonation:</p>
+              <pre class="code-block mt-2"><code class="language-rust">fn get_public_uid(&self) -> String {
+    let hash = blake3::hash(
+        self.signing_key.verifying_key().as_bytes()
+    );
+    hash.as_bytes()[..8].to_base58()
+}</code></pre>
+            </div>
           </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::list_branches(&self) - <span class="text-slate-300">Vec&lt;String&gt;</span></h5>
-            <p class="text-slate-300">Returns loaded branch names.</p>
-          </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::create_branch(&mut self, name: &str) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
-            <p class="text-slate-300">Creates branch file pointing to current head. No-op if branch exists.</p>
-          </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::checkout(&mut self, target: &str) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
-            <p class="text-slate-300">Switches HEAD to a branch or commit id if present. Errors if target not found.</p>
-          </div>
-
-          <div class="mt-3">
-            <h5 class="font-semibold">Repository::add_ignore(&self, pattern: &str) - <span class="text-slate-300">Result&lt;()&gt;</span></h5>
-            <p class="text-slate-300">Appends the pattern to <code>.aegis/ignore</code>, creating it if missing.</p>
-          </div>
-
         </div>
       </section>
 
       <section id="examples" class="mb-6 panel p-6 rounded-lg">
-        <h3 class="text-2xl font-semibold mb-2">Examples</h3>
-        <pre class="code-block"><code class="language-bash"># Initialize repository
-./aegisvcs init
+        <h2 class="text-3xl font-bold mb-4">Examples</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-emerald-400">Basic Workflow</h3>
+            <pre class="code-block"><code class="language-bash"># Initialize repository
+aegis init
 
-# Make a commit (demo uses ephemeral keypair)
-./aegisvcs commit "My message"
+# Make first commit
+aegis add .
+aegis commit "Initial commit"
 
-# View log
-./aegisvcs log
+# Create feature branch
+aegis branch feature-x
+aegis checkout feature-x
 
-# List branches
-./aegisvcs branches
+# Verify commit history
+aegis log
+aegis verify HEAD</code></pre>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-cyan-400">Advanced Usage</h3>
+            <pre class="code-block"><code class="language-bash"># Merge changes
+aegis checkout main
+aegis merge feature-x
 
-# Open repository and inspect heads
-./aegisvcs open
-</code></pre>
+# Revert mistake
+aegis revert abcd1234
 
-        <div class="mt-4 callout">
-          <strong>Dev tip:</strong> Use the embedded "Source" to copy & paste functions into a Rust project, then run `cargo check` for quick feedback.
+# Stash changes
+aegis stash "WIP: experiment"
+aegis stash apply
+
+# Create signed tag
+aegis tag v1.0 "Release version"</code></pre>
+          </div>
         </div>
       </section>
 
-      <section id="source" class="mb-6 panel p-6 rounded-lg">
-        <h3 class="text-2xl font-semibold mb-2">Full source: <code>main.rs</code></h3>
-        <p class="text-slate-400 mb-4">(Syntax highlighted, scrollable — line numbers enabled)</p>
-
-        <pre class="line-numbers code-block"><code class="language-rust">use std::{
-    collections::{BTreeMap, HashMap, HashSet},
-    fs,
-    io::{self, BufRead, Write},
-    path::{Path, PathBuf},
-    process::Command,
-    str::FromStr,
-};
-
-use anyhow::{anyhow, Context, Result};
-use base58::{FromBase58, ToBase58};
-use blake3;
-use chrono::{DateTime, Utc};
-use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
-use rand::rngs::OsRng;
-use rand::RngCore;
-use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
-use thiserror::Error;
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-struct Commit {
-    id: String,
-    parent: Option<String>,
-    tree: String,
-    author: String,
-    message: String,
-    timestamp: DateTime<Utc>,
-    signature: Option<String>,
-}
-
-#[derive(Debug)]
-struct Repository {
-    path: PathBuf,
-    heads: BTreeMap<String, String>,
-}
-
-#[derive(Error, Debug)]
-enum RepoError {
-    #[error("Repository already exists")]
-    Exists,
-    #[error("Repository not found")]
-    NotFound,
-    #[error("Branch not found: {0}")]
-    BranchNotFound(String),
-}
-
-impl Repository {
-    fn init(path: &Path) -> Result<Self> {
-        let aegis_dir = path.join(".aegis");
-        if aegis_dir.exists() {
-            anyhow::bail!("Repository already exists");
-        }
-
-        fs::create_dir_all(aegis_dir.join("objects"))?;
-        fs::create_dir_all(aegis_dir.join("trees"))?;
-        fs::create_dir_all(aegis_dir.join("commits"))?;
-        fs::create_dir_all(aegis_dir.join("branches"))?;
-        fs::create_dir_all(aegis_dir.join("tags"))?;
-        fs::create_dir_all(aegis_dir.join("stashes"))?;
-
-        Ok(Repository { path: path.to_path_buf(), heads: BTreeMap::new() })
-    }
-
-    fn open(path: &Path) -> Result<Self> {
-        let aegis_dir = path.join(".aegis");
-        if !aegis_dir.exists() {
-            anyhow::bail!("Repository not found");
-        }
-        // load heads
-        let mut heads = BTreeMap::new();
-        let branches_dir = aegis_dir.join("branches");
-        if branches_dir.exists() {
-            for entry in fs::read_dir(branches_dir)? {
-                let e = entry?;
-                if let Ok(name) = e.file_name().into_string() {
-                    let val = fs::read_to_string(e.path())?;
-                    heads.insert(name, val.trim().to_string());
-                }
-            }
-        }
-        Ok(Repository { path: path.to_path_buf(), heads })
-    }
-
-    fn write_commit(&self, commit: &Commit) -> Result<()> {
-        let cid = commit.id.clone();
-        let out = serde_json::to_string_pretty(commit)?;
-        fs::write(self.path.join(".aegis").join("commits").join(&cid), out)?;
-        Ok(())
-    }
-
-    fn read_commit(&self, id: &str) -> Result<Commit> {
-        let raw = fs::read_to_string(self.path.join(".aegis").join("commits").join(id))?;
-        let c: Commit = serde_json::from_str(&raw)?;
-        Ok(c)
-    }
-
-    fn commit(&mut self, message: &str, author: &str, signing_key: Option<&SigningKey>) -> Result<String> {
-        // simplistic: tree is hash of current files in working dir
-        let mut hasher = Sha256::new();
-        for entry in fs::read_dir(&self.path)? {
-            let e = entry?;
-            if e.file_name() == ".aegis" { continue; }
-            if e.path().is_file() {
-                let data = fs::read(e.path())?;
-                hasher.update(data);
-            }
-        }
-        let tree = hex::encode(hasher.finalize());
-        let parent = self.head().cloned();
-        let id = format!("c-{}", blake3::hash(tree.as_bytes()).to_hex());
-        let mut commit = Commit { id: id.clone(), parent, tree, author: author.to_string(), message: message.to_string(), timestamp: Utc::now(), signature: None };
-        if let Some(sk) = signing_key {
-            let sig = sk.sign(commit.message.as_bytes());
-            commit.signature = Some(sig.to_bytes().to_base58());
-        }
-        self.write_commit(&commit)?;
-        // update HEAD (default branch: main)
-        fs::write(self.path.join(".aegis").join("branches").join("main"), id.as_bytes())?;
-        self.heads.insert("main".to_string(), id.clone());
-        Ok(id)
-    }
-
-    fn head(&self) -> Option<&String> { self.heads.get("main") }
-
-    fn log(&self) -> Result<Vec<Commit>> {
-        let mut res = Vec::new();
-        let mut cur = self.head().cloned();
-        while let Some(cid) = cur {
-            let c = self.read_commit(&cid)?;
-            res.push(c.clone());
-            cur = c.parent;
-        }
-        Ok(res)
-    }
-
-    fn verify(&self, id: Option<&str>, verifying_key: Option<&VerifyingKey>) -> Result<bool> {
-        if let Some(cid) = id {
-            let c = self.read_commit(cid)?;
-            if let (Some(sig_b58), Some(vk)) = (c.signature, verifying_key) {
-                let sig = sig_b58.from_base58()?;
-                let signature = Signature::from_bytes(&sig)?;
-                vk.verify(c.message.as_bytes(), &signature)?;
-                return Ok(true);
-            }
-            return Ok(false);
-        }
-        // verify entire history if id None
-        let commits = self.log()?;
-        for c in commits {
-            if let (Some(sig_b58), Some(vk)) = (c.signature, verifying_key) {
-                let sig = sig_b58.from_base58()?;
-                let signature = Signature::from_bytes(&sig)?;
-                vk.verify(c.message.as_bytes(), &signature)?;
-            }
-        }
-        Ok(true)
-    }
-
-    fn list_branches(&self) -> Vec<String> { self.heads.keys().cloned().collect() }
-
-    fn create_branch(&mut self, name: &str) -> Result<()> {
-        if self.heads.contains_key(name) { return Ok(()); }
-        let cur = self.head().cloned().unwrap_or_default();
-        fs::write(self.path.join(".aegis").join("branches").join(name), cur.as_bytes())?;
-        self.heads.insert(name.to_string(), cur);
-        Ok(())
-    }
-
-    fn checkout(&mut self, target: &str) -> Result<()> {
-        if let Some(val) = self.heads.get(target) {
-            // switch head
-            self.heads.insert("main".to_string(), val.clone());
-            fs::write(self.path.join(".aegis").join("branches").join("main"), val.as_bytes())?;
-            return Ok(());
-        }
-        // target might be commit id
-        // if commit exists, set HEAD to it
-        if self.path.join(".aegis").join("commits").join(target).exists() {
-            fs::write(self.path.join(".aegis").join("branches").join("main"), target.as_bytes())?;
-            self.heads.insert("main".to_string(), target.to_string());
-            return Ok(());
-        }
-        anyhow::bail!("Target not found")
-    }
-
-    fn add_ignore(&self, pattern: &str) -> Result<()> {
-        let p = self.path.join(".aegis").join("ignore");
-        let mut f = fs::OpenOptions::new().create(true).append(true).open(p)?;
-        writeln!(f, "{}", pattern)?;
-        Ok(())
-    }
-}
-
-fn main() -> Result<()> {
-    let args: Vec<String> = std::env::args().collect();
-    let cwd = std::env::current_dir()?;
-    if args.len() < 2 {
-        println!("Usage: aegisvcs <command> [...]");
-        return Ok(());
-    }
-    let cmd = &args[1];
-    match cmd.as_str() {
-        "init" => {
-            Repository::init(&cwd)?;
-            println!("Initialized repository at {}", cwd.display());
-        }
-        "open" => {
-            let r = Repository::open(&cwd)?;
-            println!("Opened repo with branches: {:?}", r.list_branches());
-        }
-        "commit" => {
-            let author = whoami::realname();
-            let message = args.get(2).map(|s| s.as_str()).unwrap_or("no message");
-            // generate a keypair for demo (not persistent)
-            let mut csprng = OsRng{};
-            let sk = SigningKey::generate(&mut csprng);
-            let mut repo = Repository::open(&cwd)?;
-            let id = repo.commit(message, &author, Some(&sk))?;
-            println!("Committed {}", id);
-        }
-        "log" => {
-            let repo = Repository::open(&cwd)?;
-            for c in repo.log()? {
-                println!("{} - {} - {}", c.id, c.author, c.message);
-            }
-        }
-        "branches" => {
-            let repo = Repository::open(&cwd)?;
-            println!("Branches: {:?}", repo.list_branches());
-        }
-        other => {
-            println!("Unknown command: {}", other);
-        }
-    }
-
-    Ok(())
-}
-</code></pre>
-      </section>
-
-      <footer class="mt-8 text-sm text-slate-400">© <span id="year"></span> AegisVCS — Local Documentation</footer>
+      <footer class="mt-8 text-sm text-slate-400">© <span id="year"></span> AegisVCS — Secure Version Control System</footer>
     </main>
   </div>
 
