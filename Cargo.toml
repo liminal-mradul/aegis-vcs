@@ -1,7 +1,11 @@
 [package]
 name = "aeg"
-version = "0.0.3"
-edition = "2021"
+version = "0.1.0"
+authors = "Mradul Umrao mradulumrao@gmail.com"
+edition = "2025"
+license = "Apache-2.0"
+repository = "https://github.com/liminal-mradul/aegis-vcs
+readme = "README.md"
 
 [dependencies]
 diffy = "0.3.0"
@@ -20,3 +24,8 @@ thiserror = "1.0"
 [[bin]]
 name = "aegis"
 path = "src/main.rs"
+
+[package.metadata.deb]
+maintainer = "Your Name <you@example.com>"
+description = "AEGIS-VCS"
+license = "LICENSE"
